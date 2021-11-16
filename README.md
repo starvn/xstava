@@ -1,2 +1,2 @@
-# xstava-common-util
+# xstava
 Common utils for faster Java development.
