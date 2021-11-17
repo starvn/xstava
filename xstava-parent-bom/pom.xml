@@ -71,7 +71,7 @@
     <jackson-datatype-threetenbp.version>2.12.2</jackson-datatype-threetenbp.version>
     <spring-boot.version>2.5.5</spring-boot.version>
     <zt-zip.version>1.14</zt-zip.version>
-    <bcprov-jdk16.version>1.46</bcprov-jdk16.version>
+    <bcprov-jdk16.version>1.67</bcprov-jdk16.version>
     <httpclient.version>4.5.13</httpclient.version>
     <httpcore.version>4.4.14</httpcore.version>
     <guava.version>30.0-jre</guava.version>
