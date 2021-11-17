@@ -27,4 +27,22 @@
   <artifactId>xstava-common-client</artifactId>
   <name>XStava :: Common :: Client</name>
   <description>XStava :: Common :: Client</description>
+  <dependencies>
+    <dependency>
+      <groupId>com.github.starvn</groupId>
+      <artifactId>xstava-common-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+  </dependencies>
 </project>
