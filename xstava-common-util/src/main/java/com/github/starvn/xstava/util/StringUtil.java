@@ -63,7 +63,7 @@ public final class StringUtil {
   public static String toFriendlyURL(String s) {
     return s == null
         ? null
-        : deAccent(s)
+        : removeAccents(s)
             .toLowerCase()
             .replaceAll("([^0-9a-z-\\s])", "")
             .replaceAll("[\\s]", "-")
@@ -72,7 +72,7 @@ public final class StringUtil {
             .replaceAll("-+$", "");
   }
 
-  public static String deAccent(String str) {
+  public static String removeAccents(String str) {
     String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
     Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
     return pattern.matcher(nfdNormalizedString).replaceAll("").replace("đ", "d");
