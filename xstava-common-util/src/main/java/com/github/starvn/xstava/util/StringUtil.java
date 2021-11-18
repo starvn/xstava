@@ -33,18 +33,17 @@ public final class StringUtil {
 
   private StringUtil() {}
 
-  public static String quote(String input) {
+  public static String toNative(String input) {
     return '\"' + input + '\"';
-  }
-
-  public static String dequote(String input) {
-    return '"' + input + '"';
   }
 
   public static String toRaw(Collection<?> c) {
     return (c == null || c.isEmpty())
         ? StringUtils.EMPTY
-        : c.stream().map(String::valueOf).map(s -> "'" + s + "'").collect(Collectors.joining(","));
+        : c.stream()
+            .map(String::valueOf)
+            .map(StringUtil::toNative)
+            .collect(Collectors.joining(","));
   }
 
   @SneakyThrows
@@ -77,5 +76,9 @@ public final class StringUtil {
     String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
     Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
     return pattern.matcher(nfdNormalizedString).replaceAll("").replace("đ", "d");
+  }
+
+  public static String[] toArray(String input) {
+    return input.replace("[", "").replace("]", "").replace("\"", "").split(",");
   }
 }
