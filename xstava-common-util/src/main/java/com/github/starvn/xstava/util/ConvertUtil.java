@@ -17,10 +17,10 @@
 package com.github.starvn.xstava.util;
 
 import java.math.BigDecimal;
+import lombok.experimental.UtilityClass;
 
-public final class ConvertUtil {
-
-  private ConvertUtil() {}
+@UtilityClass
+public class ConvertUtil {
 
   public static BigDecimal getBigDecimal(String input, BigDecimal defaultValue) {
     try {

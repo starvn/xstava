@@ -27,24 +27,28 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
+@UtilityClass
 public final class StringUtil {
 
-  private StringUtil() {}
+  public static final String SLASH_CHARACTER = "/";
+  public static final String BACK_SLASH_CHARACTER = "\\";
+  public static final String DOT_CHARACTER = ".";
+  public static final String EMPTY = "";
 
-  public static String quote(String input) {
+  public static String toNative(String input) {
     return '\"' + input + '\"';
-  }
-
-  public static String dequote(String input) {
-    return '"' + input + '"';
   }
 
   public static String toRaw(Collection<?> c) {
     return (c == null || c.isEmpty())
         ? StringUtils.EMPTY
-        : c.stream().map(String::valueOf).map(s -> "'" + s + "'").collect(Collectors.joining(","));
+        : c.stream()
+            .map(String::valueOf)
+            .map(StringUtil::toNative)
+            .collect(Collectors.joining(","));
   }
 
   @SneakyThrows
@@ -64,7 +68,7 @@ public final class StringUtil {
   public static String toFriendlyURL(String s) {
     return s == null
         ? null
-        : deAccent(s)
+        : removeAccents(s)
             .toLowerCase()
             .replaceAll("([^0-9a-z-\\s])", "")
             .replaceAll("[\\s]", "-")
@@ -73,9 +77,13 @@ public final class StringUtil {
             .replaceAll("-+$", "");
   }
 
-  public static String deAccent(String str) {
+  public static String removeAccents(String str) {
     String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
     Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
     return pattern.matcher(nfdNormalizedString).replaceAll("").replace("đ", "d");
+  }
+
+  public static String[] toArray(String input) {
+    return input.replace("[", "").replace("]", "").replace("\"", "").split(",");
   }
 }

@@ -17,12 +17,12 @@
 package com.github.starvn.xstava.util;
 
 import java.time.Instant;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class TimeUtil {
-
-  private TimeUtil() {}
+@UtilityClass
+public class TimeUtil {
 
   public static long getCurrentTime() {
     Instant instant = Instant.now();

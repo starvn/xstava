@@ -20,12 +20,12 @@ import com.github.starvn.xstava.util.ExceptionUtil;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+@UtilityClass
 @Slf4j
-public final class UnixCommandUtil {
-
-  private UnixCommandUtil() {}
+public class UnixCommandUtil {
 
   public static CommandResult createScript(String scriptPath, String content) {
     CommandResult commandResult = null;
@@ -85,4 +85,3 @@ public final class UnixCommandUtil {
     return result.getExitStatus() == 0;
   }
 }
-

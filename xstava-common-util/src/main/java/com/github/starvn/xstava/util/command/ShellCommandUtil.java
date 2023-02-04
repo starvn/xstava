@@ -23,17 +23,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+@UtilityClass
 @Slf4j
-public final class ShellCommandUtil {
-
-  private ShellCommandUtil() {}
+public class ShellCommandUtil {
 
   public static CommandResult runCommand(String command) {
     CommandResult commandResult = new CommandResult();
-    String stdOut = "";
-    String stdErr = "";
+    StringBuilder stdOut = new StringBuilder();
+    StringBuilder stdErr = new StringBuilder();
     Process runJob;
 
     try {
@@ -46,14 +46,14 @@ public final class ShellCommandUtil {
       String line;
       BufferedReader bufferStdOut = new BufferedReader(new InputStreamReader(cmdStdOut));
       while ((line = bufferStdOut.readLine()) != null) {
-        stdOut += line;
+        stdOut.append(line);
       }
 
       cmdStdOut.close();
 
       BufferedReader bufferStdErr = new BufferedReader(new InputStreamReader(cmdStdErr));
       while ((line = bufferStdErr.readLine()) != null) {
-        stdErr += line;
+        stdErr.append(line);
       }
 
       cmdStdErr.close();
@@ -61,6 +61,7 @@ public final class ShellCommandUtil {
       commandResult.setOutput(stdOut + "|" + stdErr);
     } catch (IOException | InterruptedException ex) {
       log.error("(runCommand) ex: {}", ExceptionUtil.getFullStackTrace(ex));
+      Thread.currentThread().interrupt();
     }
 
     return commandResult;
@@ -80,11 +81,12 @@ public final class ShellCommandUtil {
       }
     } catch (InterruptedException | IOException ex) {
       log.info("(executeLongCommand) ex: {}", ExceptionUtil.getFullStackTrace(ex));
+      Thread.currentThread().interrupt();
     }
   }
 
   public static String executeTimeoutCommand(String command, long timeout, TimeUnit timeUnit) {
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
 
     try {
       log.info(
@@ -111,13 +113,14 @@ public final class ShellCommandUtil {
     } catch (IOException | InterruptedException ex) {
       log.error("(executeTimeoutCommand) error: " + timeout);
       log.error("(executeTimeoutCommand) ex: {}", ExceptionUtil.getFullStackTrace(ex));
+      Thread.currentThread().interrupt();
     }
 
     return output.toString();
   }
 
   public static String executeCommand(String... command) {
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
 
     try {
       ProcessBuilder ps = new ProcessBuilder(command);
@@ -135,13 +138,14 @@ public final class ShellCommandUtil {
       in.close();
     } catch (IOException | InterruptedException ex) {
       log.error("(executeCommand) ex: {}", ExceptionUtil.getFullStackTrace(ex));
+      Thread.currentThread().interrupt();
     }
 
     return output.toString();
   }
 
   public static String executeCommand(String command) {
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
 
     try {
       Process p = Runtime.getRuntime().exec(command);
@@ -154,9 +158,9 @@ public final class ShellCommandUtil {
       }
     } catch (IOException | InterruptedException ex) {
       log.error("(executeCommand) ex: {}", ExceptionUtil.getFullStackTrace(ex));
+      Thread.currentThread().interrupt();
     }
 
     return output.toString();
   }
 }
-

@@ -16,7 +16,6 @@
 
 package com.github.starvn.xstava.client;
 
-import javax.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -33,8 +32,7 @@ public class HttpProperties {
     this.init();
   }
 
-  @PostConstruct
-  public void init() {
+  private void init() {
     if (this.socketTimeout == null) {
       this.socketTimeout = 30000;
     }

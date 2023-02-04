@@ -16,10 +16,11 @@
 
 package com.github.starvn.xstava.boot.interceptor;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -28,7 +29,9 @@ public class LoggerInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(
-      HttpServletRequest request, HttpServletResponse response, Object handler) {
+      HttpServletRequest request,
+      @Nullable HttpServletResponse response,
+      @Nullable Object handler) {
     log.info(
         "[preHandle]["
             + request.getMethod()
@@ -42,7 +45,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
   public void postHandle(
       HttpServletRequest request,
       HttpServletResponse response,
-      Object handler,
+      @Nullable Object handler,
       ModelAndView modelAndView) {
     log.info(
         "[postHandle]["
@@ -56,14 +59,17 @@ public class LoggerInterceptor implements HandlerInterceptor {
 
   @Override
   public void afterCompletion(
-      HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+      @Nullable HttpServletRequest request,
+      @Nullable HttpServletResponse response,
+      @Nullable Object handler,
+      Exception ex) {
     if (ex != null) {
       log.info("[afterCompletion][exception: " + ex + "]");
     }
   }
 
   private String getParameters(HttpServletRequest request) {
-    StringBuffer posted = new StringBuffer();
+    StringBuilder posted = new StringBuilder();
     Enumeration<?> e = request.getParameterNames();
     if (e != null) {
       posted.append("?");
@@ -102,4 +108,3 @@ public class LoggerInterceptor implements HandlerInterceptor {
     return request.getRemoteAddr();
   }
 }
-

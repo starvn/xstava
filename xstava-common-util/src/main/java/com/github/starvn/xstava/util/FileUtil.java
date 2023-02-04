@@ -26,14 +26,14 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Calendar;
 import java.util.Set;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtilsV2_2;
 
 @Slf4j
-public final class FileUtil {
-
-  private FileUtil() {}
+@UtilityClass
+public class FileUtil {
 
   public static void changeModInLinux(String path) {
     log.info("(changeModInLinux) path: {}", path);
@@ -59,11 +59,12 @@ public final class FileUtil {
   public static String createDateDirectory(String rootDirectory) {
     log.info("(createDirectory) rootDirectory: {}", rootDirectory);
     Calendar calendar = Calendar.getInstance();
-    String yearPath = rootDirectory + "/" + calendar.get(Calendar.YEAR);
+    String yearPath = rootDirectory + StringUtil.SLASH_CHARACTER + calendar.get(Calendar.YEAR);
     createDirectory(yearPath);
-    String monthPath = yearPath + "/" + getMonthInHumanView(calendar.get(Calendar.MONTH));
+    String monthPath =
+        yearPath + StringUtil.SLASH_CHARACTER + getMonthInHumanView(calendar.get(Calendar.MONTH));
     createDirectory(monthPath);
-    String datePath = monthPath + "/" + calendar.get(Calendar.DATE);
+    String datePath = monthPath + StringUtil.SLASH_CHARACTER + calendar.get(Calendar.DATE);
     createDirectory(datePath);
     return datePath;
   }
@@ -143,13 +144,18 @@ public final class FileUtil {
   public static void unzipFile(String zipFilepath, FileAttribute<?>... attrs) throws IOException {
     log.info("(unzipFile) zipFilename: {}", zipFilepath);
     String parent = getParent(zipFilepath);
-    String zipFolder = parent + "/" + getFilenameWithoutExtension(zipFilepath) + "/";
+    String zipFolder =
+        parent
+            + StringUtil.SLASH_CHARACTER
+            + getFilenameWithoutExtension(zipFilepath)
+            + StringUtil.SLASH_CHARACTER;
     FileUtilsV2_2.deleteDirectory(new File(zipFolder));
     Files.createDirectories(Paths.get(zipFolder), attrs);
     ZipUtil.unpack(new File(zipFilepath), new File(zipFolder));
   }
 
   public static FileAttribute<Set<PosixFilePermission>> getFullPermissions() {
+    log.info("(getFullPermissions) getFullPermissions...");
     Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxrwxrwx");
     return PosixFilePermissions.asFileAttribute(permissions);
   }

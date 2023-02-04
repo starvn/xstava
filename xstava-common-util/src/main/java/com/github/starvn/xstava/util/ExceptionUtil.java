@@ -18,10 +18,10 @@ package com.github.starvn.xstava.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import lombok.experimental.UtilityClass;
 
-public final class ExceptionUtil {
-
-  private ExceptionUtil() {}
+@UtilityClass
+public class ExceptionUtil {
 
   public static String getFullStackTrace(Exception e) {
     return "(getFullStackTrace) " + getFullStackTraceRaw(e);

@@ -19,6 +19,7 @@ package com.github.starvn.xstava.client.service;
 import com.github.starvn.xstava.client.HttpMethod;
 import com.github.starvn.xstava.client.HttpProperties;
 import com.github.starvn.xstava.client.HttpResult;
+import com.github.starvn.xstava.client.handler.CustomHttpClientResponseHandler;
 import com.github.starvn.xstava.util.ExceptionUtil;
 import com.github.starvn.xstava.util.StringUtil;
 import com.google.common.collect.ArrayListMultimap;
@@ -31,32 +32,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.utils.Base64;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 @Slf4j
 @AllArgsConstructor
@@ -70,13 +75,14 @@ public class DefaultHttpClient implements HttpClient {
     HttpGet getMethod = new HttpGet(url);
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-      HttpResponse response = httpClient.execute(getMethod);
+      ClassicHttpResponse response =
+          httpClient.execute(getMethod, new CustomHttpClientResponseHandler());
       HttpEntity entity = response.getEntity();
       if (entity != null) {
         FileOutputStream fos = new FileOutputStream(storageFolder);
         entity.writeTo(fos);
         fos.close();
-        result.setStatusCode(response.getStatusLine().getStatusCode());
+        result.setStatusCode(response.getCode());
       }
     } catch (Exception ex) {
       log.error("(download) url: " + url + "|" + ExceptionUtil.getFullStackTrace(ex, true));
@@ -145,14 +151,15 @@ public class DefaultHttpClient implements HttpClient {
     new Timer(true).schedule(task, hardTimeout * 1000L);
 
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-      HttpResponse response = httpClient.execute(getMethod);
-      result.setStatusCode(response.getStatusLine().getStatusCode());
+      ClassicHttpResponse response =
+          httpClient.execute(getMethod, classicHttpResponse -> classicHttpResponse);
+      result.setStatusCode(response.getCode());
       if (isLazy) {
         result.setBody(EntityUtils.toString(response.getEntity()));
       } else {
         result.setBody(response.getEntity().getContent().toString());
       }
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       log.error("(query) ex: {}", ExceptionUtil.getFullStackTrace(ex, true));
     }
 
@@ -164,12 +171,17 @@ public class DefaultHttpClient implements HttpClient {
       String url, Map<String, String> headers, Map<String, String> params, String filepath) {
     HttpResult result = new HttpResult(httpProperties.getDefaultHttpCode());
     CloseableHttpResponse response = null;
-    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+    try (CloseableHttpClient httpclient =
+        HttpClients.custom()
+            .setConnectionManager(getConnectionManager())
+            .setDefaultRequestConfig(getRequestConfig(false))
+            .build()) {
       HttpPost request = new HttpPost(url);
-      request.setConfig(getRequestConfig(false));
       setHeaders(request, headers);
-      response = httpclient.execute(request);
-      result.setStatusCode(response.getStatusLine().getStatusCode());
+      response =
+          (CloseableHttpResponse)
+              httpclient.execute(request, new CustomHttpClientResponseHandler());
+      result.setStatusCode(response.getCode());
       result.setBody(StringUtil.toString(response.getEntity().getContent()));
     } catch (IOException ex) {
       log.error("(upload) url: " + url + "|" + ExceptionUtil.getFullStackTrace(ex, true));
@@ -197,51 +209,59 @@ public class DefaultHttpClient implements HttpClient {
     context.setCookieStore(cookieStore);
     CloseableHttpResponse response = null;
 
-    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+    try (CloseableHttpClient httpclient =
+        HttpClients.custom()
+            .setConnectionManager(getConnectionManager())
+            .setDefaultRequestConfig(getRequestConfig(allowRedirect))
+            .build()) {
       if (method.equals(HttpMethod.HEAD)) {
         HttpHead request = new HttpHead(url);
-        request.setConfig(getRequestConfig(allowRedirect));
-        setBasicAuthentication(request, isUseBasicAuthentication, username, password);
+        setBasicAuthenticationHeader(request, isUseBasicAuthentication, username, password);
         setHeaders(request, headers);
-        response = httpclient.execute(request, context);
+        response =
+            (CloseableHttpResponse)
+                httpclient.execute(request, context, new CustomHttpClientResponseHandler());
       } else if (method.equals(HttpMethod.GET) || method.equals(HttpMethod.DELETE)) {
-        HttpRequestBase request2;
+        HttpUriRequestBase requestBase;
         if (method.equals(HttpMethod.GET)) {
-          request2 = new HttpGet(url);
+          requestBase = new HttpGet(url);
         } else {
-          request2 = new HttpDelete(url);
+          requestBase = new HttpDelete(url);
         }
-        request2.setConfig(getRequestConfig(allowRedirect));
-        setBasicAuthentication(request2, isUseBasicAuthentication, username, password);
-        setHeaders(request2, headers);
-        response = httpclient.execute(request2, context);
+        setBasicAuthenticationHeader(requestBase, isUseBasicAuthentication, username, password);
+        setHeaders(requestBase, headers);
+        response =
+            (CloseableHttpResponse)
+                httpclient.execute(requestBase, context, new CustomHttpClientResponseHandler());
       } else {
-        HttpEntityEnclosingRequestBase request3;
+        HttpUriRequestBase requestBase;
         if (method.equals(HttpMethod.PUT)) {
-          request3 = new HttpPut(url);
+          requestBase = new HttpPut(url);
         } else {
-          request3 = new HttpPost(url);
+          requestBase = new HttpPost(url);
         }
-        request3.setConfig(getRequestConfig(allowRedirect));
-        setBasicAuthentication(request3, isUseBasicAuthentication, username, password);
-        setHeaders(request3, headers);
+        setBasicAuthenticationHeader(requestBase, isUseBasicAuthentication, username, password);
+        setHeaders(requestBase, headers);
         if (params != null) {
           List<NameValuePair> parameters = new ArrayList<>();
           for (Map.Entry<String, String> entry : params.entrySet()) {
             parameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
           }
-          request3.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8.name()));
+          requestBase.setEntity(new UrlEncodedFormEntity(parameters));
         }
         if (entity != null) {
-          request3.setEntity(new StringEntity(entity, StandardCharsets.UTF_8.name()));
+          requestBase.setEntity(
+              new StringEntity(entity, ContentType.parse(StandardCharsets.UTF_8.name())));
         }
-        response = httpclient.execute(request3, context);
+        response =
+            (CloseableHttpResponse)
+                httpclient.execute(requestBase, context, new CustomHttpClientResponseHandler());
       }
-      result.setStatusCode(response.getStatusLine().getStatusCode());
+      result.setStatusCode(response.getCode());
       if (response.getEntity() != null) {
         result.setBody(EntityUtils.toString(response.getEntity()));
         Multimap<String, String> responseHeaders = ArrayListMultimap.create();
-        for (Header header : response.getAllHeaders()) {
+        for (Header header : response.getHeaders()) {
           responseHeaders.put(header.getName(), header.getValue());
         }
         result.setHeaders(responseHeaders);
@@ -260,23 +280,38 @@ public class DefaultHttpClient implements HttpClient {
 
   private RequestConfig getRequestConfig(boolean allowRedirect) {
     return RequestConfig.custom()
-        .setSocketTimeout(httpProperties.getSocketTimeout())
-        .setConnectTimeout(httpProperties.getConnectTimeout())
-        .setConnectionRequestTimeout(httpProperties.getConnectRequestTimeout())
+        .setConnectionRequestTimeout(
+            httpProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS)
         .setRedirectsEnabled(allowRedirect)
         .build();
   }
 
+  private HttpClientConnectionManager getConnectionManager() {
+    ConnectionConfig connConfig =
+        ConnectionConfig.custom()
+            .setConnectTimeout(httpProperties.getConnectTimeout(), TimeUnit.MILLISECONDS)
+            .setSocketTimeout(httpProperties.getSocketTimeout(), TimeUnit.MILLISECONDS)
+            .build();
+    BasicHttpClientConnectionManager cm = new BasicHttpClientConnectionManager();
+    cm.setConnectionConfig(connConfig);
+    return cm;
+  }
+
   @SneakyThrows
-  private void setBasicAuthentication(
-      HttpRequestBase request, boolean isUseBasicAuthentication, String username, String password) {
+  private void setBasicAuthenticationHeader(
+      HttpUriRequestBase request,
+      boolean isUseBasicAuthentication,
+      String username,
+      String password) {
     if (isUseBasicAuthentication) {
-      UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
-      request.addHeader(new BasicScheme().authenticate(credentials, request, null));
+      final String auth = username + ":" + password;
+      final byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+      final String authHeader = "Basic " + new String(encodedAuth);
+      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
     }
   }
 
-  private void setHeaders(HttpRequestBase request, Map<String, String> headers) {
+  private void setHeaders(HttpUriRequestBase request, Map<String, String> headers) {
     if (headers != null) {
       for (Map.Entry<String, String> entry : headers.entrySet()) {
         request.setHeader(entry.getKey(), entry.getValue());
