@@ -19,13 +19,13 @@ package com.github.starvn.xstava.boot.util;
 import com.github.starvn.xstava.boot.constant.ProfileConstant;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 import org.springframework.boot.SpringApplication;
 
-public final class DefaultProfileUtil {
+@UtilityClass
+public class DefaultProfileUtil {
 
   private static final String SPRING_PROFILE_DEFAULT = "spring.profiles.default";
-
-  private DefaultProfileUtil() {}
 
   public static void addDefaultProfile(SpringApplication app) {
     Map<String, Object> defaultProperties = new HashMap<>();

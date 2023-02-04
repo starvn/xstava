@@ -25,7 +25,7 @@
   <packaging>pom</packaging>
   <name>XStava</name>
   <description>Xstava</description>
-  <inceptionYear>2021</inceptionYear>
+  <inceptionYear>2023</inceptionYear>
   <url>https://github.com/starvn/xstava/</url>
   <licenses>
     <license>
@@ -60,7 +60,7 @@
     <module>xstava-common-boot</module>
   </modules>
   <properties>
-    <java.version>8</java.version>
+    <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>

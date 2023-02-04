@@ -19,7 +19,7 @@ package com.github.starvn.xstava.client.service;
 import com.github.starvn.xstava.client.HttpMethod;
 import com.github.starvn.xstava.client.HttpResult;
 import java.util.Map;
-import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
 
 public interface HttpClient {
 

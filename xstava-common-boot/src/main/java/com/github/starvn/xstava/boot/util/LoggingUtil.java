@@ -16,17 +16,17 @@
 
 package com.github.starvn.xstava.boot.util;
 
+import io.micrometer.common.util.StringUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 
+@UtilityClass
 @Slf4j
-public final class LoggingUtil {
-
-  private LoggingUtil() {}
+public class LoggingUtil {
 
   public static void logApplicationStartup(Environment env) {
     String protocol =
@@ -61,4 +61,3 @@ public final class LoggingUtil {
         env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles());
   }
 }
-

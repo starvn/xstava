@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+@UtilityClass
 @Slf4j
-public final class DateUtil {
+public class DateUtil {
 
   public static final String DATE_IDENTIFY_FORMAT = SimpleFormat.SF_4;
-
-  private DateUtil() {}
 
   public static Date add(Date date, Boolean increase) {
     Calendar calendar = Calendar.getInstance();
@@ -124,4 +124,3 @@ public final class DateUtil {
     String SF_9 = "yyyy/MM/dd hh:mm:ss";
   }
 }
-

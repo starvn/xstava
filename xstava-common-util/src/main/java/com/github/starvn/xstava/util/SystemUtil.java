@@ -16,29 +16,14 @@
 
 package com.github.starvn.xstava.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class SystemUtil {
+@UtilityClass
+public class SystemUtil {
 
   private static final String OS = System.getProperty("os.name").toLowerCase();
-
-  private SystemUtil() {}
-
-  public static void main(String[] args) {
-    log.info(OS);
-    if (isWindows()) {
-      log.info("This is Windows");
-    } else if (isMac()) {
-      log.info("This is Mac");
-    } else if (isUnix()) {
-      log.info("This is Unix or Linux");
-    } else if (isSolaris()) {
-      log.info("This is Solaris");
-    } else {
-      log.info("Your OS is not support!!");
-    }
-  }
 
   public static boolean isWindows() {
     return OS.contains("win");
@@ -68,4 +53,3 @@ public final class SystemUtil {
     }
   }
 }
-

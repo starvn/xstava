@@ -26,15 +26,15 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.Validate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public final class GibberishAesCryptoUtil {
+@UtilityClass
+public class GibberishAesCryptoUtil {
 
   private static final String CIPHER_ALG = "PBEWITHMD5AND256BITAES/CBC/OPENSSL";
   private static final Provider CIPHER_PROVIDER = new BouncyCastleProvider();
-
-  private GibberishAesCryptoUtil() {}
 
   @SneakyThrows
   public static String encrypt(String plainText, char[] password) {

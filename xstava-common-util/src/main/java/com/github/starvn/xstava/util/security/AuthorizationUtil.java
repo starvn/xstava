@@ -17,13 +17,13 @@
 package com.github.starvn.xstava.util.security;
 
 import java.nio.charset.StandardCharsets;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 
+@UtilityClass
 @Slf4j
-public final class AuthorizationUtil {
-
-  private AuthorizationUtil() {}
+public class AuthorizationUtil {
 
   public static String generateBasicAuthorization(String username, String password) {
     String auth = username + ":" + password;

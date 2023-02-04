@@ -27,11 +27,16 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
+@UtilityClass
 public final class StringUtil {
 
-  private StringUtil() {}
+  public static final String SLASH_CHARACTER = "/";
+  public static final String BACK_SLASH_CHARACTER = "\\";
+  public static final String DOT_CHARACTER = ".";
+  public static final String EMPTY = "";
 
   public static String toNative(String input) {
     return '\"' + input + '\"';
