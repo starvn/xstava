@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.starvn</groupId>
     <artifactId>xstava</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.RELEASE</version>
   </parent>
   <artifactId>xstava-common-util</artifactId>
   <name>XStava :: Common :: Util</name>
