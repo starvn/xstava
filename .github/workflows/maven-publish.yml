@@ -30,9 +30,7 @@ jobs:
 
     - name: Build with Maven
       run: |
-        java -version
         mvn -B package --file pom.xml -Dmaven.test.skip
-        mkdir staging && cp target/*.jar staging
 
     - name: Set up a cache for Maven
       uses: actions/cache@v3
@@ -42,6 +40,6 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn --batch-mode deploy -Dmaven.test.skip
+      run: mvn --batch-mode deploy -Dmaven.test.skip -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
