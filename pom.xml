@@ -60,13 +60,13 @@
     <module>xstava-common-boot</module>
   </modules>
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <xstarvn-common-util.version>${project.version}</xstarvn-common-util.version>
+    <xstava-parent-bom.version>${project.version}</xstava-parent-bom.version>
     <fmt-maven-plugin.version>2.9.1</fmt-maven-plugin.version>
   </properties>
   <dependencyManagement>
@@ -74,7 +74,7 @@
       <dependency>
         <groupId>com.github.starvn</groupId>
         <artifactId>xstava-parent-bom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${xstava-parent-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
