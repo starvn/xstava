@@ -5,7 +5,7 @@ name: Publish package to GitHub Packages
 
 on:
   push:
-    branches: [ master ]
+    tags: '*'
   release:
     types: [created]
 
@@ -28,16 +28,16 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
         cache: maven
 
-    - name: Build with Maven
-      run: |
-        mvn -B package --file pom.xml -Dmaven.test.skip
-
     - name: Set up a cache for Maven
       uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+
+    - name: Build with Maven
+      run: |
+        mvn -B package --file pom.xml -Dmaven.test.skip
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn --batch-mode deploy -Dmaven.test.skip -s $GITHUB_WORKSPACE/settings.xml
