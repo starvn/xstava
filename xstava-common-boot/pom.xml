@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.starvn</groupId>
     <artifactId>xstava</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>xstava-common-boot</artifactId>
   <name>XStava :: Common :: Boot</name>

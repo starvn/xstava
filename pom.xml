@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.starvn</groupId>
   <artifactId>xstava</artifactId>
-  <version>1.0.0.RELEASE</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>XStava</name>
   <description>Xstava</description>
